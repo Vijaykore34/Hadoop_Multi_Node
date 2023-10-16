@@ -86,7 +86,8 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export HADOOP_LOG_DIR=/var/log/hadoop
 3.sudo mkdir /var/log/hadoop/
 4.sudo chown hduser:hadoop /var/log/hadoop/ ===> sir used this command
-4.sudo chown -R hduser:hadoop /var/log/hadoop ===> given this 
+5.cd
+                             4.sudo chown -R hduser:hadoop /var/log/hadoop ===> given this 
 
 #Disable FireWall iptables
 1.sudo iptables -L -n
@@ -162,6 +163,7 @@ UserKnownHostsFile=/dev/null" > /home/hduser/.ssh/config
 6.cd
 7.cd .ssh/
 8.ls
+9.cd
 
 
 
