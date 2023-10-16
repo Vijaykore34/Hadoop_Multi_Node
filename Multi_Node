@@ -1,45 +1,69 @@
-# Connect To the DataCenter with Public Key or Private in case of windows through Putty.
+# 1.Launch the instance ===> name NN
+  2.ubuntu ===> 20
+  3.existing secuity group ===> default
+  4.Launch the instance
+  5.Go in secuity group ===> edit inbound rule ===> keep frist line as it is ===> second line All Traffic 2.MY IP  save rules 
 
-ssh -i Downloads/file.pem ubuntu@public_dns_address
+
+
+# Connect To the DataCenter with Public Key or Private in case of windows through Putty.
+  1.ssh -i Downloads/file.pem ubuntu@public_dns_address or ssh -i nick.pem ubuntu@public ip 
 
 # Update the system
-sudo apt-get update && sudo apt-get dist-upgrade -y
+1.sudo apt-get update && sudo apt-get dist-upgrade -y
 
 # Copy public key on to the DataCenter main server
-scp -i multi.pem multi.pem ubuntu@public_dns:~/.ssh
+ 1.Open another terminal copy past this in that terminal ===> 1.scp -i multi.pem multi.pem ubuntu@public_dns:~/.ssh
+2.Go previous terminal and check key received or not ===> cd .ssh/
+3. ls
+4.cd 
 
 # Create a Hadoop user for accessing HDFS
-sudo addgroup hadoop
-sudo adduser hduser --ingroup hadoop 
-sudo adduser hduser sudo
-sudo su hduser
+1.sudo addgroup hadoop
+2.sudo adduser hduser --ingroup hadoop 
+3.sudo adduser hduser sudo
+4.sudo su hduser
+5.cd
+6.ll
 
 # Create local key
-ssh-keygen
-cat id_rsa.pub >> authorized_keys
+1.ssh-keygen
+Enter
+Enter
+Enter
+2.cd .ssh
+3.cat id_rsa.pub >> authorized_keys
+4.cd
+5.ssh localhost
+6.exit
 
 # Copy the instance public key (multi.pem) to hduser's directory
-sudo su
-cp /home/ubuntu/.ssh/multi.pem /home/hduser/.ssh/
-chown hduser:hadoop /home/hduser/.ssh/multi.pem
-exit
+1.sudo su
+2.cd
+2.cp /home/ubuntu/.ssh/multi.pem /home/hduser/.ssh/ or sir did this cp /home/ubuntu/. and again this ===> cp /home/ubuntu/.ssh/nick.pem /home/dhuser/.ssh/
+3.chown hduser:hadoop /home/hduser/.ssh/nick.pem
+4.exit
+5.cd .ssh/
+6.ls -l
 
 # Install Java 8 (Open-JDK)
-sudo apt install openjdk-8-jdk openjdk-8-jre -y
-java -version
+1.sudo apt install openjdk-8-jdk openjdk-8-jre -y
+2.cd
+3.java -version
 
 
 # Download and Install Hadoop
 
-wget https://dlcdn.apache.org/hadoop/common/stable/hadoop-3.3.5.tar.gz
-tar -xzvf hadoop-3.3.5.tar.gz
-sudo mv hadoop-3.3.5 /usr/local/hadoop
-sudo chown -R hduser:hadoop /usr/local/hadoop
+1.wget https://dlcdn.apache.org/hadoop/common/stable/hadoop-3.3.6.tar.gz
+2.tar -xzvf hadoop-3.3.6.tar.gz
+3.ls
+4.sudo mv hadoop-3.3.6 /usr/local/hadoop
+5.sudo chown -R hduser:hadoop /usr/local/hadoop
 
 # Set Enviornment Variable
-readlink -f $(which java)
-nano ~/.bashrc
-
+1.this commmand will show were is your java is located ===> readlink -f $(which java)
+2.nano ~/.bashrc or nano .bashrc
+3.copy from export to /hadoop
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export HADOOP_HOME=/usr/local/hadoop
 export PATH=$PATH:$HADOOP_HOME/bin
@@ -51,27 +75,30 @@ export HADOOP_HDFS_HOME=$HADOOP_HOME
 export YARN_HOME=$HADOOP_HOME
 export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop
 
-source ~/.bashrc
+4.source ~/.bashrc or source .bashrc
 
-cd /usr/local/hadoop/etc/hadoop/
+5.cd /usr/local/hadoop/etc/hadoop/
 
 #Update hadoop-env.sh
-nano hadoop-env.sh
+1.nano hadoop-env.sh
+2.copy from export to /hadoop two lines only
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export HADOOP_LOG_DIR=/var/log/hadoop
-sudo mkdir /var/log/hadoop/
-sudo chown -R hduser:hadoop /var/log/hadoop
+3.sudo mkdir /var/log/hadoop/
+4.sudo chown hduser:hadoop /var/log/hadoop/ ===> sir used this command
+4.sudo chown -R hduser:hadoop /var/log/hadoop ===> given this 
 
 #Disable FireWall iptables
-sudo iptables -L -n
-sudo ufw status
-sudo ufw disable
+1.sudo iptables -L -n
+2.sudo ufw status
+3.sudo ufw disable ==> dont fire if not enabled then fire
 
 #Disabling Transparent Hugepage Compaction
 
-cat /sys/kernel/mm/transparent_hugepage/defrag
+1.cat /sys/kernel/mm/transparent_hugepage/defrag
 
-$ sudo nano /etc/init.d/disable-transparent-hugepages
+$ 2.sudo nano /etc/init.d/disable-transparent-hugepages
+  3.copy from #!/bin/bash to esac
 
 #!/bin/sh
 ### BEGIN INIT INFO
@@ -102,33 +129,51 @@ case $1 in
     ;;
 esac
 
-$ sudo chmod 755 /etc/init.d/disable-transparent-hugepages
+$ 4.sudo chmod 755 /etc/init.d/disable-transparent-hugepages
 
-$ sudo update-rc.d disable-transparent-hugepages defaults
+$ 5.sudo update-rc.d disable-transparent-hugepages defaults
 
->>Restart server
-
+>>Restart server ===> Go in instance ===> instance state ===> Reboot instance 
+> 1.Connect again to an instance ===> ssh -i nick.pem ubuntu@public ip
+  2.su hduser
+  3.cd
+  4.check the script is working or not ===> sudo nano /etc/init.d/disable-transparent-hugepages
+  5.cat /sys/kernel/mm/transparent_hugepage/defrag
 
 # Set Swappiness
-sudo sysctl -a | grep vm.swappiness
-sudo sysctl vm.swappiness=1
+ 1.sudo sysctl -a | grep vm.swappiness
+ 2.sudo sysctl vm.swappiness=1
 
 # Configure NTP 
-timedatectl status
-timedatectl list-timezones
-sudo timedatectl set-timezone Asia/Kolkata
-sudo apt install ntp -y
+1.timedatectl status
+2.timedatectl list-timezones
+3.sudo timedatectl set-timezone Asia/Kolkata
+4.sudo apt install ntp -y
 
 ##Configure SSH Password less logins
-sudo su -c touch /home/hduser/.ssh/config; echo "Host *\n StrictHostKeyChecking no\n
+copy past this two lines in terminal ===> 1.sudo su -c touch /home/hduser/.ssh/config; echo "Host *\n StrictHostKeyChecking no\n
 UserKnownHostsFile=/dev/null" > /home/hduser/.ssh/config
-sudo service ssh restart
+2.sudo su -c touch /home/hduser/.ssh/config;
+
+ This all are optional command ===>
+3.cd .ssh
+4.ls
+5.nano config
+6.cd
+7.cd .ssh/
+8.ls
+
+
+
+ 3.sudo service ssh restart
 
 # Configure .profile (make sure you are on NN) 
- nano .profile
- eval `ssh-agent` ssh-add /home/hduser/.ssh/abc.pem
+ 1.nano .profile
+ copy past this line in bootam ===> eval `ssh-agent` ssh-add /home/hduser/.ssh/nick.pem
 
- source .profile
+ 2.source .profile
+
+> Go in Instance --> Action ===> security ===> image and templates ===> create image ===> name it as hadoop3 ==> No reboot enable tick ==> create image
 
 
 ----------****** Create a snapshot at this point ******-----------------
